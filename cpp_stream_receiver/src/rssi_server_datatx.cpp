@@ -53,14 +53,21 @@ class TestSend : public rogue::interfaces::stream::Master {
 
 
 int main (int argc, char **argv) {
-   uint8_t data[100];
-   struct timeval last;
-   struct timeval curr;
-   struct timeval diff;
-   double   timeDiff;
-   uint64_t lastBytes;
-   uint64_t diffBytes;
-   double bw;
+  uint32_t ksize=4000000;//8000000;
+  uint8_t data[ksize];
+  struct timeval last;
+  struct timeval curr;
+  struct timeval diff;
+  double   timeDiff;
+  uint64_t lastBytes;
+  uint64_t diffBytes;
+  double bw;
+
+  // rglein: data generation
+  for (int i = 0; i <= ksize; i++)
+   {
+       data[i] = i;
+   }
 
    // Create the UDP client, jumbo = true
    rogue::protocols::udp::ServerPtr udp  = rogue::protocols::udp::Server::create(8194,true);
@@ -91,8 +98,8 @@ int main (int argc, char **argv) {
 
    while(1) {
 
-      send->myGenFrame(data,100);
-      sleep(1);
+      send->myGenFrame(data,ksize);
+      //sleep(1);
       gettimeofday(&curr,NULL);
 
       timersub(&curr,&last,&diff);
@@ -108,4 +115,3 @@ int main (int argc, char **argv) {
       printf("RSSI = %i. TxLast=%i, TxCount=%i, TxTotal=%li, Bw=%f, DropRssi=%i, DropPack=%i\n",rssi->getOpen(),send->txLast,send->txCount,send->txBytes,bw,rssi->getDropCount(),pack->getDropCount());
    }
 }
-
