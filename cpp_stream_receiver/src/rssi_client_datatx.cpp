@@ -89,10 +89,10 @@ int main (int argc, char **argv) {
 
    // Create a test source and connect to channel 1 of the packetizer
    boost::shared_ptr<TestSend> send = boost::make_shared<TestSend>();
-   //streamConnect(send,pack->application(1));
+   streamConnect(send,pack->application(1));
    // Create a PRBS and connect to channel 1 of the packetizer
    rogue::utilities::PrbsPtr prbsTx = rogue::utilities::Prbs::create();
-   streamConnect(prbsTx,pack->application(1));
+   //streamConnect(prbsTx,pack->application(1));
 
    // Start the rssi link
    rssi->start();
@@ -101,28 +101,29 @@ int main (int argc, char **argv) {
    lastBytes = 0;
    gettimeofday(&last,NULL);
 
-   while(1) {
+   for (int i = 0; i <= 9; i++) //while(1)
+   {
 
-      // send->myGenFrame(data,ksize);
-      // //sleep(1);
-      // gettimeofday(&curr,NULL);
-      // timersub(&curr,&last,&diff);
-      // diffBytes = send->txBytes - lastBytes;
-      // lastBytes = send->txBytes;
-      // timeDiff = (double)diff.tv_sec + ((double)diff.tv_usec / 1e6);
-      // bw = (((float)diffBytes * 8.0) / timeDiff) / 1e9;
-      // gettimeofday(&last,NULL);
-      // printf("RSSI = %i. TxLast=%i, TxCount=%i, TxTotal=%li, Bw=%f, DropRssi=%i, DropPack=%i\n",rssi->getOpen(),send->txLast,send->txCount,send->txBytes,bw,rssi->getDropCount(),pack->getDropCount());
-
-      prbsTx->genFrame (ksize);
+      send->myGenFrame(data,ksize);
+      //sleep(1);
       gettimeofday(&curr,NULL);
       timersub(&curr,&last,&diff);
-      diffBytes = prbsTx->getTxBytes() - lastBytes;
-      lastBytes = prbsTx->getTxBytes();
+      diffBytes = send->txBytes - lastBytes;
+      lastBytes = send->txBytes;
       timeDiff = (double)diff.tv_sec + ((double)diff.tv_usec / 1e6);
       bw = (((float)diffBytes * 8.0) / timeDiff) / 1e9;
       gettimeofday(&last,NULL);
-      printf("RSSI = %i. TxErrors=%i, TxCount=%i, TxTotal=%li, Bw=%f, DropRssi=%i, DropPack=%i\n",rssi->getOpen(),prbsTx->getTxErrors(),prbsTx->getTxCount(),prbsTx->getTxBytes(),bw,rssi->getDropCount(),pack->getDropCount());
+      printf("RSSI = %i. TxLast=%i, TxCount=%i, TxTotal=%li, Bw=%f, DropRssi=%i, DropPack=%i\n",rssi->getOpen(),send->txLast,send->txCount,send->txBytes,bw,rssi->getDropCount(),pack->getDropCount());
+
+      // prbsTx->genFrame(4*1024*1024);
+      // gettimeofday(&curr,NULL);
+      // timersub(&curr,&last,&diff);
+      // diffBytes = prbsTx->getTxBytes() - lastBytes;
+      // lastBytes = prbsTx->getTxBytes();
+      // timeDiff = (double)diff.tv_sec + ((double)diff.tv_usec / 1e6);
+      // bw = (((float)diffBytes * 8.0) / timeDiff) / 1e9;
+      // gettimeofday(&last,NULL);
+      // printf("RSSI = %i. TxErrors=%i, TxCount=%i, TxTotal=%li, Bw=%f, DropRssi=%i, DropPack=%i\n\n",rssi->getOpen(),prbsTx->getTxErrors(),prbsTx->getTxCount(),prbsTx->getTxBytes(),bw,rssi->getDropCount(),pack->getDropCount());
 
    }
 }

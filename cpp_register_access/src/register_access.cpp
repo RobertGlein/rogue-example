@@ -18,15 +18,12 @@ int main (int argc, char **argv) {
    uint32_t spad;
    uint32_t upTimeCnt;
 
-   uint32_t mem[32];
-   uint32_t memR[65536];
    uint32_t ksize=500; // 2**13 b=8169=0x2000; bc of 32 b -> max addr 499
    uint32_t memWr[ksize];
    uint32_t memWr1[ksize];
    uint32_t memRd[ksize];
    uint32_t memRd1[ksize];
 
-   uint32_t tmp = 3;
 
    //rogue::Logging::setLevel(rogue::Logging::Debug);
 
@@ -70,79 +67,10 @@ int main (int argc, char **argv) {
    upTimeCnt = 0xFFFFFFFF;
 
    // Read from fpga version
+   printf("\n -- Read from fpga version ---------------------------------- \n");
    mast->reqTransaction(0x00000000,4,&ver,rogue::interfaces::memory::Read);
    mast->reqTransaction(0x00000004,4,&spad,rogue::interfaces::memory::Read);
    mast->reqTransaction(0x00000008,4,&upTimeCnt,rogue::interfaces::memory::Read);
-
-   mem[0]=0xc0de0001;
-   mem[1]=0xc0de0002;
-   mem[2]=0xc0de0003;
-
-   mast->reqTransaction(0x00030000,4,&mem[0],rogue::interfaces::memory::Write);
-   mast->reqTransaction(0x00030004,4,&mem[1],rogue::interfaces::memory::Write);
-   mast->reqTransaction(0x00030008,4,&mem[2],rogue::interfaces::memory::Write);
-
-   mast->reqTransaction(0x00030000,4,&memR[0],rogue::interfaces::memory::Read);
-   mast->reqTransaction(0x00030004,4,&memR[1],rogue::interfaces::memory::Read);
-
-
-   // SsiPrbsTx
-   printf("\n -- SsiPrbsTx test ---------------------------------- \n");
-   tmp=3;
-   mast->reqTransaction(0x00040000,4,&tmp,rogue::interfaces::memory::Write);
-
-   mast->reqTransaction(0x00040000,4,&tmp,rogue::interfaces::memory::Read);
-   printf("Reg 0 : %d \n", tmp);
-
-   mast->reqTransaction(0x00040004,4,&tmp,rogue::interfaces::memory::Read);
-   printf("Packet length first R: %d \n", tmp);
-
-   tmp = 1100;
-   mast->reqTransaction(0x00040004,4,&tmp,rogue::interfaces::memory::Write);
-   printf("Packet length W : %d \n", tmp);
-
-   mast->reqTransaction(0x00040004,4,&tmp,rogue::interfaces::memory::Read);
-   printf("Packet length after R : %d \n", tmp);
-
-   printf("Register done. Value=0x%x, Spad=0x%x, UpTimeCnt=0x%x, Error=0x%x\n",ver,spad,upTimeCnt,mast->getError());
-
-
-   // 0x00030008
-   printf("\n -- 0x00030008 test ---------------------------------- \n");
-   mast->reqTransaction(0x00030008,1000,&memR[2],rogue::interfaces::memory::Read);
-   mast->waitTransaction(0);
-
-   printf("Register done. Value=0x%x, Spad=0x%x, UpTimeCnt=0x%x, Error=0x%x\n",ver,spad,upTimeCnt,mast->getError());
-   printf("memR[0]: 0x%x, memR[1]: 0x%x, memR[2]: 0x%x \n ", memR[0], memR[1], memR[2]);
-
-
-   // SsiPrbsRx
-   printf("\n -- SsiPrbsRx test ---------------------------------- \n");
-   tmp=3;
-   mast->reqTransaction(0x00050000,4,&tmp,rogue::interfaces::memory::Write);
-   mast->waitTransaction(0);
-   printf("Register done. Value=0x%x, Spad=0x%x, UpTimeCnt=0x%x, Error=0x%x\n",ver,spad,upTimeCnt,mast->getError());
-   mast->setError(0);
-
-   mast->reqTransaction(0x00050000,4,&tmp,rogue::interfaces::memory::Read);
-   printf("Reg 0 : %d \n", tmp);
-   mast->waitTransaction(0);
-   printf("Register done. Value=0x%x, Spad=0x%x, UpTimeCnt=0x%x, Error=0x%x\n",ver,spad,upTimeCnt,mast->getError());
-
-   mast->reqTransaction(0x00050004,4,&tmp,rogue::interfaces::memory::Read);
-   printf("Packet length first R: %d \n", tmp);
-   mast->waitTransaction(0);
-   printf("Register done. Value=0x%x, Spad=0x%x, UpTimeCnt=0x%x, Error=0x%x\n",ver,spad,upTimeCnt,mast->getError());
-
-   tmp = 1100;
-   mast->reqTransaction(0x00050004,4,&tmp,rogue::interfaces::memory::Write);
-   printf("Packet length W : %d \n", tmp);
-   mast->waitTransaction(0);
-   printf("Register done. Value=0x%x, Spad=0x%x, UpTimeCnt=0x%x, Error=0x%x\n",ver,spad,upTimeCnt,mast->getError());
-   mast->setError(0);
-
-   mast->reqTransaction(0x00050004,4,&tmp,rogue::interfaces::memory::Read);
-   printf("Packet length after R : %d \n", tmp);
    mast->waitTransaction(0);
    printf("Register done. Value=0x%x, Spad=0x%x, UpTimeCnt=0x%x, Error=0x%x\n",ver,spad,upTimeCnt,mast->getError());
 
